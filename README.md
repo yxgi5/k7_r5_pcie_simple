@@ -24,8 +24,9 @@
 
 
 su
+lspci -vxd 10ee:*
+setpci -d 10ee:7024 COMMAND
 setpci -s 01:00.0 COMMAND=0x7
-
 echo 1 > /sys/bus/pci/rescan
 echo 1 > /sys/bus/pci/devices/0000\:01\:00.0/rescan
 无效

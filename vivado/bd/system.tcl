@@ -369,7 +369,7 @@ proc create_root_design { parentCell } {
 
 
   # Create interface ports
-  set DDR3_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 DDR3_0 ]
+  set DDR3 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 DDR3 ]
 
   set PCIE_REF_CLK [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 PCIE_REF_CLK ]
 
@@ -383,6 +383,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.POLARITY {ACTIVE_LOW} \
  ] $reset_rtl_0
+  set resetn_0 [ create_bd_port -dir I -type rst resetn_0 ]
 
   # Create instance: GND, and set properties
   set GND [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 GND ]
@@ -409,8 +410,10 @@ proc create_root_design { parentCell } {
    CONFIG.MMCM_CLKIN2_PERIOD {10.0} \
    CONFIG.MMCM_CLKOUT0_DIVIDE_F {5.000} \
    CONFIG.PRIM_IN_FREQ {50.000} \
-   CONFIG.USE_LOCKED {false} \
-   CONFIG.USE_RESET {false} \
+   CONFIG.RESET_PORT {resetn} \
+   CONFIG.RESET_TYPE {ACTIVE_LOW} \
+   CONFIG.USE_LOCKED {true} \
+   CONFIG.USE_RESET {true} \
  ] $clk_wiz_0
 
   # Create instance: mig_7series_0, and set properties
@@ -447,11 +450,18 @@ proc create_root_design { parentCell } {
    CONFIG.PF3_DEVICE_ID_mqdma {9024} \
    CONFIG.axi_data_width {128_bit} \
    CONFIG.axilite_master_en {false} \
-   CONFIG.axilite_master_scale {Gigabytes} \
+   CONFIG.axilite_master_scale {Megabytes} \
    CONFIG.axisten_freq {125} \
+   CONFIG.mode_selection {Advanced} \
+   CONFIG.pf0_base_class_menu {Memory_controller} \
+   CONFIG.pf0_class_code {058000} \
+   CONFIG.pf0_class_code_base {05} \
+   CONFIG.pf0_class_code_interface {00} \
+   CONFIG.pf0_class_code_sub {80} \
    CONFIG.pf0_device_id {7024} \
    CONFIG.pf0_msix_cap_pba_bir {BAR_0} \
    CONFIG.pf0_msix_cap_table_bir {BAR_0} \
+   CONFIG.pf0_sub_class_interface_menu {Other_memory_controller} \
    CONFIG.pl_link_cap_max_link_speed {5.0_GT/s} \
    CONFIG.pl_link_cap_max_link_width {X4} \
    CONFIG.plltype {QPLL1} \
@@ -466,7 +476,7 @@ proc create_root_design { parentCell } {
   # Create interface connections
   connect_bd_intf_net -intf_net PCIE_REF_CLK_1 [get_bd_intf_ports PCIE_REF_CLK] [get_bd_intf_pins util_ds_buf_0/CLK_IN_D]
   connect_bd_intf_net -intf_net axi_smc_M00_AXI [get_bd_intf_pins axi_smc/M00_AXI] [get_bd_intf_pins mig_7series_0/S_AXI]
-  connect_bd_intf_net -intf_net mig_7series_0_DDR3 [get_bd_intf_ports DDR3_0] [get_bd_intf_pins mig_7series_0/DDR3]
+  connect_bd_intf_net -intf_net mig_7series_0_DDR3 [get_bd_intf_ports DDR3] [get_bd_intf_pins mig_7series_0/DDR3]
   connect_bd_intf_net -intf_net xdma_0_M_AXI [get_bd_intf_pins axi_smc/S00_AXI] [get_bd_intf_pins xdma_0/M_AXI]
   connect_bd_intf_net -intf_net xdma_0_pcie_mgt [get_bd_intf_ports pcie_7x_mgt_rtl_0] [get_bd_intf_pins xdma_0/pcie_mgt]
 
@@ -474,19 +484,21 @@ proc create_root_design { parentCell } {
   connect_bd_net -net GND_dout [get_bd_pins GND/dout] [get_bd_pins xlconcat_0/In1] [get_bd_pins xlconcat_0/In2] [get_bd_pins xlconcat_0/In3] [get_bd_pins xlconcat_0/In4] [get_bd_pins xlconcat_0/In5] [get_bd_pins xlconcat_0/In6] [get_bd_pins xlconcat_0/In7]
   connect_bd_net -net clk_in1_0_1 [get_bd_ports clk50m] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net clk_wiz_0_clk_out1 [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins mig_7series_0/sys_clk_i]
+  connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins mig_7series_0/sys_rst]
   connect_bd_net -net mig_7series_0_init_calib_complete [get_bd_pins mig_7series_0/init_calib_complete] [get_bd_pins xlconcat_0/In0]
   connect_bd_net -net mig_7series_0_mmcm_locked [get_bd_pins mig_7series_0/mmcm_locked] [get_bd_pins rst_mig_7series_0_100M/dcm_locked]
   connect_bd_net -net mig_7series_0_ui_clk [get_bd_pins axi_smc/aclk1] [get_bd_pins mig_7series_0/ui_clk] [get_bd_pins rst_mig_7series_0_100M/slowest_sync_clk]
   connect_bd_net -net mig_7series_0_ui_clk_sync_rst [get_bd_pins mig_7series_0/ui_clk_sync_rst] [get_bd_pins rst_mig_7series_0_100M/ext_reset_in]
   connect_bd_net -net reset_rtl_0_1 [get_bd_ports reset_rtl_0] [get_bd_pins xdma_0/sys_rst_n]
-  connect_bd_net -net rst_mig_7series_0_100M_peripheral_aresetn [get_bd_pins axi_smc/aresetn] [get_bd_pins mig_7series_0/aresetn] [get_bd_pins rst_mig_7series_0_100M/peripheral_aresetn]
+  connect_bd_net -net resetn_0_1 [get_bd_ports resetn_0] [get_bd_pins clk_wiz_0/resetn]
+  connect_bd_net -net rst_mig_7series_0_100M_peripheral_aresetn [get_bd_pins mig_7series_0/aresetn] [get_bd_pins rst_mig_7series_0_100M/peripheral_aresetn]
   connect_bd_net -net util_ds_buf_0_IBUF_OUT [get_bd_pins util_ds_buf_0/IBUF_OUT] [get_bd_pins xdma_0/sys_clk]
   connect_bd_net -net xdma_0_axi_aclk [get_bd_pins axi_smc/aclk] [get_bd_pins xdma_0/axi_aclk]
-  connect_bd_net -net xdma_0_axi_aresetn [get_bd_pins mig_7series_0/sys_rst] [get_bd_pins xdma_0/axi_aresetn]
+  connect_bd_net -net xdma_0_axi_aresetn [get_bd_pins axi_smc/aresetn] [get_bd_pins xdma_0/axi_aresetn]
   connect_bd_net -net xlconcat_0_dout [get_bd_ports led] [get_bd_pins xlconcat_0/dout]
 
   # Create address segments
-  assign_bd_address -offset 0x80000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
+  assign_bd_address -offset 0x00000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI] [get_bd_addr_segs mig_7series_0/memmap/memaddr] -force
 
 
   # Restore current instance

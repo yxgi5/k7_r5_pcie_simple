@@ -26,6 +26,9 @@ set_property PACKAGE_PIN N4 [get_ports {pcie_7x_mgt_rtl_0_rxp[2]}]
 set_property PACKAGE_PIN L4 [get_ports {pcie_7x_mgt_rtl_0_rxp[1]}]
 set_property PACKAGE_PIN J4 [get_ports {pcie_7x_mgt_rtl_0_rxp[0]}]
 
+set_property PACKAGE_PIN H26 [get_ports resetn_0]
+set_property IOSTANDARD LVCMOS33 [get_ports resetn_0]
+
 set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
 set_property CONFIG_MODE SPIx4 [current_design]
 set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
