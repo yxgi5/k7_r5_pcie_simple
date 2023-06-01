@@ -4,7 +4,7 @@ pcie_manage::pcie_manage(QWidget *parent)
     : QFrame(parent)
 {
     setStyleSheet(""
-                  "*{font-size:16px;color:#fff;font-family:微软雅黑;}"
+                  "*{font-size:16px;color:#000;font-family:微软雅黑;}"
                  );
     QGridLayout *pLayout = new QGridLayout(this);
 

@@ -104,7 +104,7 @@ void xdma_programe::opt_pack(int mode, char *pData, int len, unsigned int offset
 
 bool xdma_programe::getDevice()
 {
-    bool b = true;
+    bool b = false;
 
     for(int i=0;i<3;i++)
     {
@@ -121,39 +121,59 @@ bool xdma_programe::getDevice()
     memset(devWriteHandle, 0, sizeof(devWriteHandle));
     //获取设备路径
 	
-	if(devReadHandle[0] == -1)
+    if(devReadHandle[0] == 0)
 	{
 		devReadHandle[0] = open(DEVICE_NAME_CONTROL, O_RDWR | O_SYNC);
+        printf("devReadHandle[0] = %d\n",devReadHandle[0]);
 		devWriteHandle[0] = devReadHandle[0];
 		if(devReadHandle[0] == -1)
 		{
 			b = false;
 		}
+        else
+        {
+            b = true;
+        }
 	}
-	if(devReadHandle[1] == -1)
+    if(devReadHandle[1] == 0)
 	{
 		devReadHandle[1] = open(DEVICE_NAME_USER, O_RDWR | O_SYNC);
+        printf("devReadHandle[1] = %d\n",devReadHandle[1]);
 		devWriteHandle[1] = devReadHandle[1];
 		if(devReadHandle[1] == -1)
 		{
 			b = false;
 		}
+        else
+        {
+            b = true;
+        }
 	}
-	if(devReadHandle[2] == -1)
+    if(devReadHandle[2] == 0)
 	{
 		devReadHandle[2] = open(DEVICE_NAME_READ, O_RDWR | O_NONBLOCK);
+        printf("devReadHandle[2] = %d\n",devReadHandle[2]);
 		if(devReadHandle[2] == -1)
 		{
 			b = false;
-		}
+        }
+        else
+        {
+            b = true;
+        }
 	}
-	if(devWriteHandle[2] == -1)
+    if(devWriteHandle[2] == 0)
 	{
 		devWriteHandle[2] = open(DEVICE_NAME_WRITE, O_RDWR | O_NONBLOCK);
+        printf("devWriteHandle[2] = %d\n",devWriteHandle[2]);
 		if(devWriteHandle[2] == -1)
 		{
 			b = false;
 		}
+        else
+        {
+            b = true;
+        }
 	}	
 
     return b;

@@ -4,7 +4,7 @@ user_ui::user_ui(QWidget *parent)
     : QFrame(parent)
 {
     setStyleSheet("user_ui{"
-                  "background:#444;border:1px solid #777;}"
+                  "background:#888;border:1px solid #777;}"
                   "#mainui{"
                   "border:1px solid #222;}"
                   "QLabel{color:white;font-size:12px;}");
